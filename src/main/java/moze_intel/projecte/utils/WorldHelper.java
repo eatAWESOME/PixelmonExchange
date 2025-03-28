@@ -503,10 +503,10 @@ public final class WorldHelper {
 	}
 
 	private static void repelEntity(Vector3d vec, Entity entity) {
-		Vector3d t = new Vector3d(entity.getX(), entity.getY(), entity.getZ());
-		Vector3d r = new Vector3d(t.x - vec.x, t.y - vec.y, t.z - vec.z);
-		double distance = vec.distanceTo(t) + 0.1;
-		entity.setDeltaMovement(entity.getDeltaMovement().add(r.scale(1 / 1.5 * 1 / distance)));
+		//Vector3d t = new Vector3d(entity.getX(), entity.getY(), entity.getZ());
+		//Vector3d r = new Vector3d(t.x - vec.x, t.y - vec.y, t.z - vec.z);
+		//double distance = vec.distanceTo(t) + 0.1;
+		//entity.setDeltaMovement(entity.getDeltaMovement().add(r.scale(1 / 1.5 * 1 / distance)));
 	}
 
 	@Nonnull
