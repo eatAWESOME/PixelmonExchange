@@ -2,8 +2,10 @@ package moze_intel.projecte.events;
 
 import java.util.Optional;
 import moze_intel.projecte.PECore;
+import moze_intel.projecte.api.ItemInfo;
 import moze_intel.projecte.api.ProjectEAPI;
 import moze_intel.projecte.api.capabilities.IAlchBagProvider;
+import moze_intel.projecte.api.capabilities.IKnowledgeProvider;
 import moze_intel.projecte.capability.managing.BasicCapabilityResolver;
 import moze_intel.projecte.gameObjs.items.AlchemicalBag;
 import moze_intel.projecte.gameObjs.items.armor.PEArmor;
@@ -14,12 +16,14 @@ import moze_intel.projecte.impl.TransmutationOffline;
 import moze_intel.projecte.impl.capability.AlchBagImpl;
 import moze_intel.projecte.impl.capability.KnowledgeImpl;
 import moze_intel.projecte.network.PacketHandler;
+import moze_intel.projecte.utils.EMCHelper;
 import moze_intel.projecte.utils.PlayerHelper;
 import moze_intel.projecte.utils.text.PELang;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -39,6 +43,7 @@ import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -201,4 +206,85 @@ public class PlayerEvents {
 		}
 		return 0;
 	}
+	
+	@SubscribeEvent
+	public static void onEntityItemPickup(EntityItemPickupEvent event) {
+		PlayerEntity player = event.getPlayer();
+	    ItemStack itemStack = event.getItem().getItem();
+	    knowledgeCheck(player, itemStack);
+	}
+	
+	@SubscribeEvent
+    public static void onContainerOpen(PlayerContainerEvent.Open event) {
+		PlayerEntity player = event.getPlayer();
+        Container container = event.getContainer();
+        containerKnowledgeCheck(player, container);
+    }
+
+    @SubscribeEvent
+    public static void onContainerClose(PlayerContainerEvent.Close event) {
+        PlayerEntity player = event.getPlayer();
+        Container container = event.getContainer();
+        containerKnowledgeCheck(player, container);
+    }
+	
+	@SubscribeEvent
+	public static void onItemCrafted(PlayerEvent.ItemCraftedEvent event) {
+		PlayerEntity player = event.getPlayer();
+	    ItemStack itemStack = event.getCrafting();
+	    knowledgeCheck(player, itemStack);
+	}
+	
+	@SubscribeEvent
+	public static void onItemPickup(PlayerEvent.ItemPickupEvent event) {
+		PlayerEntity player = event.getPlayer();
+	    ItemStack itemStack = event.getStack();
+	    knowledgeCheck(player, itemStack);
+	}
+	
+	@SubscribeEvent
+	public static void onItemSmelted(PlayerEvent.ItemSmeltedEvent event) {
+		PlayerEntity player = event.getPlayer();
+	    ItemStack itemStack = event.getSmelting();
+	    knowledgeCheck(player, itemStack);
+	}
+
+	public static void containerKnowledgeCheck(PlayerEntity player, Container container) {
+		for (ItemStack itemStack : container.getItems()) {
+			knowledgeCheck(player, itemStack);
+	    }
+		for (ItemStack itemStack : player.inventory.items) {
+			knowledgeCheck(player, itemStack);
+	    }
+	}
+	
+	public static void knowledgeCheck(PlayerEntity player, ItemStack itemStack) {
+		if (player instanceof ServerPlayerEntity) {
+	        try {
+	            IKnowledgeProvider knowledgeProvider = getKnowledgeProvider(player);
+	            if (!itemStack.isEmpty() && EMCHelper.getEmcValue(itemStack) > 0) {
+	                if (!knowledgeProvider.hasKnowledge(itemStack)) {
+	                    knowledgeProvider.addKnowledge(itemStack);
+	                    knowledgeProvider.syncKnowledgeChange((ServerPlayerEntity) player, ItemInfo.fromStack(itemStack), true);
+	                }
+	            }
+	        } catch (IllegalArgumentException e) {
+	            System.err.println("Error retrieving knowledge provider: " + e.getMessage());
+	        }
+	    }
+	}
+	
+	public static IKnowledgeProvider getKnowledgeProvider(PlayerEntity player) {
+	    // Get the capability and ensure it's the correct type
+	    return player.getCapability(ProjectEAPI.KNOWLEDGE_CAPABILITY)
+	                 .map(cap -> {
+	                     if (cap instanceof IKnowledgeProvider) {
+	                         return (IKnowledgeProvider) cap;
+	                     } else {
+	                         throw new IllegalArgumentException("Invalid capability type for transmutation knowledge");
+	                     }
+	                 })
+	                 .orElseThrow(() -> new IllegalArgumentException("Player does not have transmutation knowledge capability"));
+	}
+
 }
