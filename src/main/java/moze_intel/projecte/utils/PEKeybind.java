@@ -11,7 +11,8 @@ public enum PEKeybind implements IHasTranslationKey {
 	CHARGE,
 	EXTRA_FUNCTION,
 	FIRE_PROJECTILE,
-	MODE;
+	MODE,
+	TRANSMUTATION;
 
 	private final String translationKey;
 

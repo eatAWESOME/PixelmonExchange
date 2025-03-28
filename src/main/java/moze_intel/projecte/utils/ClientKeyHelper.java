@@ -41,6 +41,7 @@ public class ClientKeyHelper {
 		addKeyBinding(builder, PEKeybind.EXTRA_FUNCTION, KeyModifier.NONE, GLFW.GLFW_KEY_C);
 		addKeyBinding(builder, PEKeybind.FIRE_PROJECTILE, KeyModifier.NONE, GLFW.GLFW_KEY_R);
 		addKeyBinding(builder, PEKeybind.MODE, KeyModifier.NONE, GLFW.GLFW_KEY_G);
+		addKeyBinding(builder, PEKeybind.TRANSMUTATION, KeyModifier.NONE, GLFW.GLFW_KEY_U);
 		mcToPe = builder.build();
 		peToMc = mcToPe.inverse();
 		for (KeyBinding k : mcToPe.keySet()) {

@@ -7,6 +7,7 @@ import moze_intel.projecte.gameObjs.items.armor.GemArmorBase;
 import moze_intel.projecte.gameObjs.items.armor.GemChest;
 import moze_intel.projecte.gameObjs.items.armor.GemFeet;
 import moze_intel.projecte.gameObjs.items.armor.GemHelmet;
+import moze_intel.projecte.gameObjs.items.TransmutationTablet.ContainerProvider;
 import moze_intel.projecte.handlers.InternalAbilities;
 import moze_intel.projecte.network.packets.IPEPacket;
 import moze_intel.projecte.utils.PEKeybind;
@@ -22,6 +23,7 @@ import net.minecraft.util.Util;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.NonNullPredicate;
 import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraftforge.fml.network.NetworkHooks;
 
 public class KeyPressPKT implements IPEPacket {
 
@@ -49,6 +51,16 @@ public class KeyPressPKT implements IPEPacket {
 				((GemFeet) boots.getItem()).toggleStepAssist(boots, player);
 			}
 			return;
+		} else if (key == PEKeybind.TRANSMUTATION) {
+			if (!player.level.isClientSide) {
+				Hand hand = Hand.MAIN_HAND;
+				NetworkHooks.openGui((ServerPlayerEntity) player, new ContainerProvider(hand), buf -> {
+					buf.writeBoolean(true);
+					buf.writeEnum(hand);
+					buf.writeByte(player.inventory.selected);
+				});
+		    }
+		    return;
 		}
 		Optional<InternalAbilities> cap = player.getCapability(InternalAbilities.CAPABILITY).resolve();
 		if (!cap.isPresent()) {

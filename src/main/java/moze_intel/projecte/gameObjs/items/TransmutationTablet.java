@@ -34,11 +34,11 @@ public class TransmutationTablet extends ItemPE {
 		return ActionResult.success(player.getItemInHand(hand));
 	}
 
-	private static class ContainerProvider implements INamedContainerProvider {
+	public static class ContainerProvider implements INamedContainerProvider {
 
 		private final Hand hand;
 
-		private ContainerProvider(Hand hand) {
+		public ContainerProvider(Hand hand) {
 			this.hand = hand;
 		}
 
