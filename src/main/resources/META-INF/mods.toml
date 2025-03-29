@@ -1,18 +1,17 @@
 modLoader="javafml"
 loaderVersion="${loader_version}"
-issueTrackerURL="https://github.com/sinkillerj/ProjectE/issues"
+issueTrackerURL="https://github.com/eatAWESOME/PixelmonExchange/issues"
 license="MIT"
 
 [[mods]]
   modId="projecte"
   version="${version}"
-  displayName="ProjectE"
-  updateJSONURL="https://raw.githubusercontent.com/sinkillerj/ProjectE/mc1.16.x/update.json"
-  displayURL="https://github.com/sinkillerj/ProjectE"
+  displayName="PixelmonExchange"
+  displayURL="https://github.com/eatAWESOME/PixelmonExchange"
   logoFile="logo.png"
-  authors="SinKillerJ, MaPePeR, williewillus, Lilylicious, pupnewfster"
-  credits="EE2 creator - x3n0ph0b3, EE2 GUI Textures - MidnightLightning, Former Texture Artist - Magic Banana"
-  description='''A complete rewrite of EE2 for modern Minecraft versions.'''
+  authors="Alden Tilley"
+  credits="EE2 creator - x3n0ph0b3, EE2 GUI Textures - MidnightLightning, Former Texture Artist - Magic Banana, Project E Developers - SinKillerJ, MaPePeR, williewillus, Lilylicious, pupnewfster"
+  description='''A fork of ProjectE with a focus on Pixelmon'''
 
 [[dependencies.projecte]]
   modId="minecraft"

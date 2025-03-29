@@ -89,7 +89,7 @@ static void extendConfigurations(Configuration base, Configuration... configurat
 }
 
 ext {
-    versionProperties = ["version"       : projecte_version, "mc_version": minecraft_version_range, "forge_version": forge_version_range,
+    versionProperties = ["version"       : pixelmonexchange_version, "mc_version": minecraft_version_range, "forge_version": forge_version_range,
                          "loader_version": loader_version_range, "crafttweaker_version": crafttweaker_version_range]
     jsonPatterns = ["**/*.json", "**/*.mcmeta"]
 }
@@ -121,9 +121,9 @@ def replaceResources = tasks.register("replaceResources", Copy) {
     }
 }
 
-version = "${projecte_version}"
+version = "${pixelmonexchange_version}"
 group = "java.moze_intel"
-archivesBaseName = "projecte"
+archivesBaseName = "PixelmonExchange"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
@@ -333,12 +333,12 @@ classes.configure { dependsOn(replaceResources) }
 
 def getManifestAttributes() {
     return [
-            "Specification-Title"     : "ProjectE",
-            "Specification-Vendor"    : "ProjectE",
-            "Specification-Version"   : "${project.projecte_version}",
-            "Implementation-Title"    : "ProjectE",
-            "Implementation-Version"  : "${project.projecte_version}",
-            "Implementation-Vendor"   : "ProjectE",
+            "Specification-Title"     : "PixelmonExchange",
+            "Specification-Vendor"    : "PixelmonExchange",
+            "Specification-Version"   : "${project.pixelmonexchange_version}",
+            "Implementation-Title"    : "PixelmonExchange",
+            "Implementation-Version"  : "${project.pixelmonexchange_version}",
+            "Implementation-Vendor"   : "PixelmonExchange",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
     ]
 }
@@ -377,9 +377,16 @@ shadowJar {
     exclude("com/pixelmonmod/**")
     exclude("assets/pixelmon/**")
     exclude("assets/tcg/**")
+    exclude("darwin/**")
     exclude("data/pixelmon/**")
     exclude("data/tcg/**")
-    exclude("info/pixelmon/**")
+    exclude("info/**")
+    exclude("io/**")
+    exclude("linux/**")
+    exclude("net/**")
+    exclude("win-x64/**")
+    exclude("win-x86/**")
+    exclude("mixins.*")
     // Relocate apache commons-math3 to prevent conflicts with other mods that include it
     relocate 'org.apache.commons.math3', 'moze_intel.projecte.shaded.org.apache.commons.math3'
     // Minimize the required files so we only include what is needed
@@ -393,21 +400,6 @@ reobf {
     shadowJar { }
     apiJar { classpath.from(sourceSets.api.compileClasspath) }
     jar { classpath.from(sourceSets.main.compileClasspath) }
-}
-
-task updateJSON {
-    doLast {
-        def updateJsonFile = file('update.json')
-        def updateJson = new JsonSlurper().parse(updateJsonFile) as Map
-
-        updateJson."${minecraft_version}"."${project.version}" = "See https://www.curseforge.com/minecraft/mc-mods/projecte/files for detailed information."
-
-        // Update promos
-        updateJson.promos."${minecraft_version}-latest" = "${project.version}"
-        updateJson.promos."${minecraft_version}-recommended" = "${project.version}"
-
-        updateJsonFile.write(JsonOutput.prettyPrint(JsonOutput.toJson(updateJson)))
-    }
 }
 
 tasks.withType(JavaCompile).configureEach({
