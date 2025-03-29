@@ -292,6 +292,9 @@ dependencies {
     implementation fg.deobf("com.blamejared.crafttweaker:CraftTweaker-${minecraft_version}:${crafttweaker_version}")
 
     implementation group: "org.apache.commons", name: "commons-math3", version: "3.6.1"
+    
+    compileOnly fg.deobf(files('libs/Pixelmon-1.16.5-9.1.13-universal.jar'))
+    runtimeOnly fg.deobf(files('libs/Pixelmon-1.16.5-9.1.13-universal.jar'))
 }
 
 if (project.hasProperty('UPDATE_MAPPINGS')) {
@@ -371,6 +374,12 @@ shadowJar {
     exclude('assets/org/**')
     exclude('META-INF/maven/**')
     exclude('META-INF/*.txt')
+    exclude("com/pixelmonmod/**")
+    exclude("assets/pixelmon/**")
+    exclude("assets/tcg/**")
+    exclude("data/pixelmon/**")
+    exclude("data/tcg/**")
+    exclude("info/pixelmon/**")
     // Relocate apache commons-math3 to prevent conflicts with other mods that include it
     relocate 'org.apache.commons.math3', 'moze_intel.projecte.shaded.org.apache.commons.math3'
     // Minimize the required files so we only include what is needed

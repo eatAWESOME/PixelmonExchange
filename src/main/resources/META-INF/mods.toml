@@ -30,3 +30,9 @@ license="MIT"
   versionRange="${crafttweaker_version}"
   ordering="AFTER"
   side="BOTH"
+[[dependencies.projecte]]
+    modId="pixelmon"
+    mandatory=true
+    versionRange="[9.1,)"
+    ordering="NONE"
+    side="BOTH"
