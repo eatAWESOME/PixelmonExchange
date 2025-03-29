@@ -4,9 +4,9 @@ import javax.annotation.Nonnull;
 import net.minecraft.util.IStringSerializable;
 
 public enum EnumCollectorTier implements IStringSerializable {
-	MK1("collector_mk1", 4, 10_000),
-	MK2("collector_mk2", 12, 30_000),
-	MK3("collector_mk3", 40, 60_000);
+	MK1("collector_mk1", 1, 10_000),
+	MK2("collector_mk2", 1, 30_000),
+	MK3("collector_mk3", 1, 60_000);
 
 	private final String name;
 	private final long genRate;
