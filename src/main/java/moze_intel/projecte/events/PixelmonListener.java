@@ -2,26 +2,42 @@ package moze_intel.projecte.events;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.List;
+import com.pixelmonmod.pixelmon.api.events.ApricornEvent;
+import com.pixelmonmod.pixelmon.api.events.DropEvent;
 import com.pixelmonmod.pixelmon.api.events.ExperienceGainEvent;
+import com.pixelmonmod.pixelmon.api.events.PickupEvent;
+import com.pixelmonmod.pixelmon.api.events.PokeLootEvent;
+import com.pixelmonmod.pixelmon.api.events.PokeStopEvent;
+import com.pixelmonmod.pixelmon.api.events.ShopkeeperEvent;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
 import com.pixelmonmod.pixelmon.battles.controller.BattleController;
 import com.pixelmonmod.pixelmon.battles.controller.participants.PixelmonWrapper;
+import com.pixelmonmod.pixelmon.entities.pixelmon.drops.DroppedItem;
 import com.pixelmonmod.pixelmon.Pixelmon;
+import moze_intel.projecte.api.ItemInfo;
 import moze_intel.projecte.api.ProjectEAPI;
 import moze_intel.projecte.api.capabilities.IKnowledgeProvider;
+import moze_intel.projecte.utils.EMCHelper;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextComponent;
 
-public class BattleEventsListener {
+public class PixelmonListener {
 
-	public BattleEventsListener() {
+	public PixelmonListener() {
 		Pixelmon.EVENT_BUS.addListener(this::onExperienceGain);
+		Pixelmon.EVENT_BUS.addListener(this::onApricornPick);
+		Pixelmon.EVENT_BUS.addListener(this::onDrop);
+		Pixelmon.EVENT_BUS.addListener(this::onPickup);
+		Pixelmon.EVENT_BUS.addListener(this::onPokeLoot);
+		Pixelmon.EVENT_BUS.addListener(this::onPokeStop);
+		Pixelmon.EVENT_BUS.addListener(this::onShopkeeperPurchase);
     }
 	
 	//Fails when lvl:100
-	//Duplicated by Exp. All
 	public void onExperienceGain(ExperienceGainEvent event) {
 		if (event.isFromBattle()) {
 			ServerPlayerEntity player = event.pokemon.getPlayerOwner();
@@ -50,6 +66,48 @@ public class BattleEventsListener {
 		}
     }
 	
+	public void onApricornPick(ApricornEvent.Pick event) {
+		ServerPlayerEntity player = event.getPlayer();
+		ItemStack itemStack = event.getPickedStack();
+		knowledgeCheck(player, itemStack);
+	}
+	
+	public void onDrop(DropEvent event) {
+		ServerPlayerEntity player = event.player;
+		for (DroppedItem droppedItem : event.getDrops()) {
+			ItemStack itemStack = droppedItem.item;
+			knowledgeCheck(player, itemStack);
+	    }
+	}
+	
+	public void onPickup(PickupEvent event) {
+		ServerPlayerEntity player = event.player.player;
+		ItemStack itemStack = event.stack;
+		knowledgeCheck(player, itemStack);
+	}
+	
+	public void onPokeLoot(PokeLootEvent.GetDrops event) {
+		ServerPlayerEntity player = event.player;
+		ItemStack[] itemStacks = event.getDrops();
+		for (ItemStack itemStack : itemStacks) {
+			knowledgeCheck(player, itemStack);
+		}
+	}
+	
+	public void onPokeStop(PokeStopEvent.Drops event) {
+		PlayerEntity player = event.getPlayer();
+		List<ItemStack> itemStacks = event.getDrops();
+		for (ItemStack itemStack : itemStacks) {
+			knowledgeCheck(player, itemStack);
+		}
+	}
+	
+	public void onShopkeeperPurchase(ShopkeeperEvent.Purchase event) {
+		ServerPlayerEntity player = event.getEntityPlayer();
+		ItemStack itemStack = event.getItem();
+		knowledgeCheck(player, itemStack);
+	}
+	
 	private int calculateCP(Pokemon pokemon) {
         double hp = pokemon.getStats().getHP();
         double attack = pokemon.getStats().getAttack();
@@ -63,13 +121,24 @@ public class BattleEventsListener {
 
         return (int) Math.floor(cp);
     }
-	
-	public static void addEmcToPlayer(ServerPlayerEntity player, long emcToAdd) {
-        
-    }
+
+	public static void knowledgeCheck(PlayerEntity player, ItemStack itemStack) {
+		if (player instanceof ServerPlayerEntity) {
+	        try {
+	            IKnowledgeProvider knowledgeProvider = getKnowledgeProvider(player);
+	            if (!itemStack.isEmpty() && EMCHelper.getEmcValue(itemStack) > 0) {
+	                if (!knowledgeProvider.hasKnowledge(itemStack)) {
+	                    knowledgeProvider.addKnowledge(itemStack);
+	                    knowledgeProvider.syncKnowledgeChange((ServerPlayerEntity) player, ItemInfo.fromStack(itemStack), true);
+	                }
+	            }
+	        } catch (IllegalArgumentException e) {
+	            System.err.println("Error retrieving knowledge provider: " + e.getMessage());
+	        }
+	    }
+	}
 	
 	public static IKnowledgeProvider getKnowledgeProvider(PlayerEntity player) {
-	    // Get the capability and ensure it's the correct type
 	    return player.getCapability(ProjectEAPI.KNOWLEDGE_CAPABILITY)
 	                 .map(cap -> {
 	                     if (cap instanceof IKnowledgeProvider) {

@@ -275,7 +275,6 @@ public class PlayerEvents {
 	}
 	
 	public static IKnowledgeProvider getKnowledgeProvider(PlayerEntity player) {
-	    // Get the capability and ensure it's the correct type
 	    return player.getCapability(ProjectEAPI.KNOWLEDGE_CAPABILITY)
 	                 .map(cap -> {
 	                     if (cap instanceof IKnowledgeProvider) {
