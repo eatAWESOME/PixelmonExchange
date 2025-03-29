@@ -130,6 +130,8 @@ public class PixelmonListener {
 	                if (!knowledgeProvider.hasKnowledge(itemStack)) {
 	                    knowledgeProvider.addKnowledge(itemStack);
 	                    knowledgeProvider.syncKnowledgeChange((ServerPlayerEntity) player, ItemInfo.fromStack(itemStack), true);
+	                    TextComponent message = new StringTextComponent("Learned " + itemStack.getItem().getName(itemStack).getString() + " Transmutation Knowledge");
+	                    player.sendMessage(message, player.getUUID());
 	                }
 	            }
 	        } catch (IllegalArgumentException e) {
