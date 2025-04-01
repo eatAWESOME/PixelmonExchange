@@ -4,6 +4,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import com.pixelmonmod.pixelmon.api.events.ApricornEvent;
+import com.pixelmonmod.pixelmon.api.events.CaptureEvent.SuccessfulCapture;
+import com.pixelmonmod.pixelmon.api.events.CaptureEvent.SuccessfulRaidCapture;
 import com.pixelmonmod.pixelmon.api.events.DropEvent;
 import com.pixelmonmod.pixelmon.api.events.ExperienceGainEvent;
 import com.pixelmonmod.pixelmon.api.events.PickupEvent;
@@ -29,6 +31,8 @@ public class PixelmonListener {
 
 	public PixelmonListener() {
 		Pixelmon.EVENT_BUS.addListener(this::onExperienceGain);
+		Pixelmon.EVENT_BUS.addListener(this::onCapture);
+		Pixelmon.EVENT_BUS.addListener(this::onRaidCapture);
 		Pixelmon.EVENT_BUS.addListener(this::onApricornPick);
 		Pixelmon.EVENT_BUS.addListener(this::onDrop);
 		Pixelmon.EVENT_BUS.addListener(this::onPickup);
@@ -38,6 +42,7 @@ public class PixelmonListener {
     }
 	
 	//Fails when lvl:100
+	//Doesn't include Exp from catching
 	public void onExperienceGain(ExperienceGainEvent event) {
 		if (event.isFromBattle()) {
 			ServerPlayerEntity player = event.pokemon.getPlayerOwner();
@@ -53,10 +58,10 @@ public class PixelmonListener {
 			                	int cp = calculateCP(pokemon);
 			                	IKnowledgeProvider knowledgeProvider = getKnowledgeProvider(player);
 			                    BigInteger currentEmc = knowledgeProvider.getEmc();
-			                    BigInteger newEmc = currentEmc.add(BigInteger.valueOf(cp * 5));
+			                    BigInteger newEmc = currentEmc.add(BigInteger.valueOf(cp));
 			                    knowledgeProvider.setEmc(newEmc);
 			                    knowledgeProvider.syncEmc(player);
-			                    TextComponent message = new StringTextComponent("Earned " + String.valueOf(cp * 5) + " EMC for defeating a level " + String.valueOf(pokemon.getPokemonLevel()) + " (" + String.valueOf(cp) + " CP) " + pokemon.getSpecies().getTranslatedName().getString());
+			                    TextComponent message = new StringTextComponent("Earned " + String.valueOf(cp) + " EMC for defeating a level " + String.valueOf(pokemon.getPokemonLevel()) + " (" + String.valueOf(cp) + " CP) " + pokemon.getSpecies().getTranslatedName().getString());
 			                    player.sendMessage(message, player.getUUID());
 			                }
 			            }
@@ -64,6 +69,32 @@ public class PixelmonListener {
 				}
 			}
 		}
+    }
+	
+	public void onCapture(SuccessfulCapture event) {
+		ServerPlayerEntity player = event.getPlayer();
+		Pokemon pokemon = event.getPokemon().getPokemon();
+    	int cp = calculateCP(pokemon);
+    	IKnowledgeProvider knowledgeProvider = getKnowledgeProvider(player);
+        BigInteger currentEmc = knowledgeProvider.getEmc();
+        BigInteger newEmc = currentEmc.add(BigInteger.valueOf(cp * 5));
+        knowledgeProvider.setEmc(newEmc);
+        knowledgeProvider.syncEmc(player);
+        TextComponent message = new StringTextComponent("Earned " + String.valueOf(cp * 5) + " EMC for catching a level " + String.valueOf(pokemon.getPokemonLevel()) + " (" + String.valueOf(cp) + " CP) " + pokemon.getSpecies().getTranslatedName().getString());
+        player.sendMessage(message, player.getUUID());
+    }
+	
+	public void onRaidCapture(SuccessfulRaidCapture event) {
+		ServerPlayerEntity player = event.getPlayer();
+		Pokemon pokemon = event.getRaidPokemon();
+    	int cp = calculateCP(pokemon);
+    	IKnowledgeProvider knowledgeProvider = getKnowledgeProvider(player);
+        BigInteger currentEmc = knowledgeProvider.getEmc();
+        BigInteger newEmc = currentEmc.add(BigInteger.valueOf(cp * 10));
+        knowledgeProvider.setEmc(newEmc);
+        knowledgeProvider.syncEmc(player);
+        TextComponent message = new StringTextComponent("Earned " + String.valueOf(cp * 10) + " EMC for catching a level " + String.valueOf(pokemon.getPokemonLevel()) + " (" + String.valueOf(cp) + " CP) " + pokemon.getSpecies().getTranslatedName().getString());
+        player.sendMessage(message, player.getUUID());
     }
 	
 	public void onApricornPick(ApricornEvent.Pick event) {
