@@ -1,3 +1,10 @@
+###Version 1.0.2 (1.16.5, Pixelmon 9.1.13)
+* Fixed a bug when learning transmutation knowledge from boss drops
+
+###Version 1.0.1 (1.16.5, Pixelmon 9.1.13)
+* NEW: Added EMC for catching pokemon
+* CHANGE: Reduced EMC for defeating pokemon
+
 ###Version 1.0.0 (1.16.5, Pixelmon 9.1.13)
 * NOTICE: Forked from sinkillerj/ProjectE
 * NEW: Added pixelmon integration where EMC is credited to players' transmutation inventory for defeating pokemon

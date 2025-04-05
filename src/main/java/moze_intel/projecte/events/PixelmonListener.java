@@ -157,13 +157,15 @@ public class PixelmonListener {
 		if (player instanceof ServerPlayerEntity) {
 	        try {
 	            IKnowledgeProvider knowledgeProvider = getKnowledgeProvider(player);
-	            if (!itemStack.isEmpty() && EMCHelper.getEmcValue(itemStack) > 0) {
-	                if (!knowledgeProvider.hasKnowledge(itemStack)) {
-	                    knowledgeProvider.addKnowledge(itemStack);
-	                    knowledgeProvider.syncKnowledgeChange((ServerPlayerEntity) player, ItemInfo.fromStack(itemStack), true);
-	                    TextComponent message = new StringTextComponent("Learned " + itemStack.getItem().getName(itemStack).getString() + " Transmutation Knowledge");
-	                    player.sendMessage(message, player.getUUID());
-	                }
+	            if (itemStack != null) {
+	            	if (!itemStack.isEmpty() && EMCHelper.getEmcValue(itemStack) > 0) {
+		                if (!knowledgeProvider.hasKnowledge(itemStack)) {
+		                    knowledgeProvider.addKnowledge(itemStack);
+		                    knowledgeProvider.syncKnowledgeChange((ServerPlayerEntity) player, ItemInfo.fromStack(itemStack), true);
+		                    TextComponent message = new StringTextComponent("Learned " + itemStack.getItem().getName(itemStack).getString() + " Transmutation Knowledge");
+		                    player.sendMessage(message, player.getUUID());
+		                }
+		            }
 	            }
 	        } catch (IllegalArgumentException e) {
 	            System.err.println("Error retrieving knowledge provider: " + e.getMessage());
